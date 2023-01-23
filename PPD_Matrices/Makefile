@@ -1,4 +1,4 @@
-SOURCES = main.c
+SOURCES = main.c fct_auxiliaires.c
 OUTPUT = calcul_elements_propres
 LIB = -lm -lgsl -lgslcblas 
 OPT = -Wall -g
