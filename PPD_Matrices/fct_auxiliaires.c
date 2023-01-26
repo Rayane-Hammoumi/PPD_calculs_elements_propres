@@ -85,6 +85,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_so
 
 void affiche_matrice(gsl_matrix *A)
 {
+    printf("\n\nMatrice :\n");
     for (int i = 0; i < A->size1; i++)
     {
         for (int j = 0; j < A->size2; j++)
@@ -93,6 +94,7 @@ void affiche_matrice(gsl_matrix *A)
         }
         printf("\n");
     }
+    printf("\n\n");
 }
 
 gsl_spmatrix *lit_fichier_mat(char nomFichier[])
@@ -149,4 +151,34 @@ gsl_matrix *inverse_matrix(gsl_matrix *A)
     gsl_permutation_free(p);
 
     return inverse;
+}
+
+gsl_matrix *multiplier_matrice(gsl_matrix *A, gsl_matrix *B)
+{
+    int m;
+
+    m = A->size1;
+    gsl_vector *v = gsl_vector_alloc(m);
+
+    // allocation de la matrice C
+    gsl_matrix *C = gsl_matrix_alloc(m, m);
+
+    // copie des elements de A dans C
+    for (int i = 0; i < m; i++)
+    {
+        gsl_matrix_get_row(v, A, i);
+        gsl_matrix_set_row(C, i, v);
+    }
+
+    // produit matriciel
+    if (B->size1 == m)
+    {
+        gsl_matrix_mul_elements(C, B);
+    }
+    else
+    {
+        printf("error: les deux matrices n'ont pas la même taille\n");
+    }
+
+    return C;
 }

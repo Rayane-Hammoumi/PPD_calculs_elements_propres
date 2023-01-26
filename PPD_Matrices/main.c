@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     projection(A, B, yk, taille_sous_espace); // remplit la matrice B et l'affiche
 
     // TODO: yk=une combinaison linéaire des vecteurs propres au redémarrage
-
+    affiche_matrice(multiplier_matrice(B, B));
     // libération de la mémoire allouée
     gsl_spmatrix_free(A);
     gsl_matrix_free(B);
