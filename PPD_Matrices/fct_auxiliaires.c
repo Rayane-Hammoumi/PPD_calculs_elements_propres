@@ -10,9 +10,7 @@ void remplis_colonne_matrice_avec_vecteur(gsl_matrix *matrice, gsl_vector *vecte
     {
         for (size_t i = 0; i < vecteur->size; i++)
         {
-            printf("fichier %s, ligne %d\n", __FILE__, __LINE__);
             gsl_matrix_set(matrice, i, numero_colonne, vecteur->data[i]);
-            printf("fichier %s, ligne %d\n", __FILE__, __LINE__);
         }
     }
 }
@@ -36,7 +34,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
 
     double Ck = 0.0, temp = 0.0;
-    int i, j, k, l, o;
+    int i, j, k, l;
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
     printf("taille sous espace: %ld\n", taille_sous_espace);
 
@@ -67,8 +65,6 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
                 {
                     remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k);
                 }
-
-                // printf("\nvaleur de temp: %g\n", temp);
                 temp = 0.0;
             }
 
@@ -92,10 +88,8 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
             i = 0;
             while (j >= 1)
             {
-                printf("%d\n", __LINE__);
 
                 gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
-                printf("fichier %s, ligne %d\n", __FILE__, __LINE__);
 
                 if (k != taille_sous_espace)
                 {
@@ -140,7 +134,6 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
 
 void affiche_matrice(gsl_matrix *A)
 {
-    printf("\n\nMatrice :\n");
     for (int i = 0; i < A->size1; i++)
     {
         for (int j = 0; j < A->size2; j++)
