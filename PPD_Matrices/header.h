@@ -12,5 +12,5 @@ gsl_matrix *inverse_matrix(gsl_matrix *A);
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant);
 void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk);
 
-#define taille_sous_espace_en_pourcentage 20 // par rapport à la matrice initiale A
+#define taille_sous_espace_en_pourcentage 4 // par rapport à la matrice initiale A
 // TODO:#define precision

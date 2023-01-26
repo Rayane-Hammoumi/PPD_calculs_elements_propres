@@ -4,9 +4,9 @@
 // écrase le yk par le yk+1 à chaque tour
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
-    int res = 0;
+    double res = 0.0;
 
-    for (int k = 0; k < yk->size; k++)
+    for (size_t k = 0; k < yk->size; k++)
     {
         res += yk->data[k] * yk_suivant->data[k];
     }
