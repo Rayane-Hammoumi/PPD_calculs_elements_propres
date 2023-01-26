@@ -4,13 +4,13 @@
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_linalg.h>
 #include <math.h>
+#include <ctype.h>
 
 void affiche_matrice(gsl_matrix *A);
 gsl_spmatrix *lit_fichier_mat(char nomFichier[]);
 void calcule_valeurs_propre(gsl_matrix *matrix);
 gsl_matrix *inverse_matrix(gsl_matrix *A);
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant);
-void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk);
+void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_sous_espace);
 
-#define taille_sous_espace_en_pourcentage 4 // par rapport à la matrice initiale A
 // TODO:#define precision

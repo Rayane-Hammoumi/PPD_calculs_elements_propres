@@ -2,21 +2,25 @@
 
 int main(int argc, char *argv[])
 {
-  if (argc == 1)
+  if (argc < 3)
   {
-    printf("Veuillez préciser le chemin du fichier de matrix market.\nutilisation: ./calcul_elements_propres cheminfichier\n");
+    printf("Veuillez préciser le chemin du fichier de matrix market.\nUtilisation: ./calcul_elements_propres chemin_fichier taille_sous_espace\n");
     return 1;
   }
 
   else
   {
+    char *verifie_strtol;
+    size_t taille_sous_espace = strtol(argv[2], &verifie_strtol, 10);
+    if (*verifie_strtol != '\0')
+    {
+      printf("La taille spécifiée pour le sous-espace n'est pas un nombre\nUtilisation: ./calcul_elements_propres chemin_fichier taille_sous_espace\n");
+      return 1;
+    }
+    printf("%ld", taille_sous_espace);
+
     // on importe la matrice du fichier
     gsl_spmatrix *A = lit_fichier_mat(argv[1]);
-
-    // on définit le nombre de valeurs propres à calculer (taille du sous_espace)
-    int taille_sous_espace_int = A->size1;
-    taille_sous_espace_int = taille_sous_espace_int * taille_sous_espace_en_pourcentage / 100;
-    size_t taille_sous_espace = taille_sous_espace_int;
 
     // initialisation de la matrice B et du vecteur yk
     gsl_matrix *B = gsl_matrix_calloc(taille_sous_espace, taille_sous_espace);
@@ -25,7 +29,7 @@ int main(int argc, char *argv[])
     gsl_vector_set_zero(yk); // le 1er élément de yk est égal à 1. Les autres sont égal à 0
     yk->data[0] = 1;
 
-    projection(A, B, yk); // remplit la matrice B et l'affiche
+    projection(A, B, yk, taille_sous_espace); // remplit la matrice B et l'affiche
 
     // TODO: yk=une combinaison linéaire des vecteurs propres au redémarrage
 

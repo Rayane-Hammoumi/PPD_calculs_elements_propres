@@ -13,54 +13,71 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
     return res;
 }
 
-void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk)
+void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_sous_espace)
 {
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
 
-    int taille_sous_espace_int = A->size1;
-    taille_sous_espace_int = taille_sous_espace_int * taille_sous_espace_en_pourcentage / 100;
-    size_t taille_sous_espace = taille_sous_espace_int;
-
     double Ck = 0.0, temp = 0.0;
-    int i, j, k, l, compteur = 0;
+    int i, j, k, l;
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
     printf("taille sous espace: %ld\n", taille_sous_espace);
 
-    // pour chaque index i de B
-    for (i = 0; i < taille_sous_espace_int; i++)
+    // pour chaque index k de Bk
+    for (k = 1; k <= 2 * taille_sous_espace - 1; k++)
     {
-        // pour chaque index j de B on calcule yk_suivant
-        for (j = compteur; j < taille_sous_espace_int; j++)
+        if (k % 2 == 0) // si k est pair alors Ck=produit_scalaire(yk, yk)
+        {
+            Ck = produit_scalaire(yk, yk);
+            printf("Ck: %g\n", Ck);
+        }
+        else // sinon Ck=produit_scalaire(yk, yk_suivant)
         {
             // pour chaque élément l de yk_suivant
             for (l = 0; l < A->size1; l++)
             {
                 // on calcule l'élément l
-                for (k = 0; k < (A->size1); k++)
+                for (i = 0; i < (A->size1); i++)
                 {
-                    temp += yk->data[k] * gsl_spmatrix_get(A, l, k);
+                    temp += yk->data[i] * gsl_spmatrix_get(A, l, i);
                 }
                 yk_suivant->data[l] = temp;
 
-                printf("\nvaleur de temp: %g\n", temp);
-
+                // printf("\nvaleur de temp: %g\n", temp);
                 temp = 0.0;
             }
 
             // calcul de Ck = produit scalaire(yk, yk_suivant)
             Ck = produit_scalaire(yk, yk_suivant);
+            printf("Ck: %g\n", Ck);
 
-            // on stocke Ck dans la matrice B
-            gsl_matrix_set(B, i, j, Ck);
-            if (i != j) // si on ne remplit pas une case dans la diagonale
-            {
-                gsl_matrix_set(B, j, i, Ck); // alors on remplit le Ck symétrique par rapport à la diagonale
-            }
-
-            // copie les éléments de yk_suivant dans yk
+            // copie les éléments de yk_suivant dans yk pour le prochain tour de boucle
             gsl_vector_memcpy(yk, yk_suivant);
         }
-        compteur++; // incrémente pour ne remplir que la partie au desus de la diagonale de la matrice
+
+        if (k <= taille_sous_espace)
+        {
+            j = k;
+            i = 0;
+            while (j >= 1)
+            {
+                printf("%d\n", __LINE__);
+                gsl_matrix_set(B, i, j - 1, Ck); // on stocke Ck dans la matrice B
+                i++;
+                j--;
+            }
+        }
+        else
+        {
+            j = taille_sous_espace;
+            i = k - taille_sous_espace;
+            while (j >= 1 + k - taille_sous_espace)
+            {
+                printf("%d\n", __LINE__);
+                gsl_matrix_set(B, i, j - 1, Ck); // on stocke Ck dans la matrice B
+                j--;
+                i++;
+            }
+        }
     }
     affiche_matrice(B);
     gsl_vector_free(yk_suivant);
