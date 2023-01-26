@@ -2,43 +2,37 @@
 
 int main(int argc, char *argv[])
 {
-  /*int n = 3;
-  gsl_matrix *A = gsl_matrix_alloc(n, n);
-  // on remplit la matrice A avec des valeurs
-
-  gsl_matrix_set(A, 0, 0, 2.0);
-  gsl_matrix_set(A, 0, 1, 1.0);
-  gsl_matrix_set(A, 0, 2, 0.0);
-  gsl_matrix_set(A, 1, 0, 1.0);
-  gsl_matrix_set(A, 1, 1, 2.0);
-  gsl_matrix_set(A, 1, 2, 1.0);
-  gsl_matrix_set(A, 2, 0, 0.0);
-  gsl_matrix_set(A, 2, 1, 1.0);
-  gsl_matrix_set(A, 2, 2, 2.0);
-  gsl_matrix_free(A);*/
-
-  if (argc > 1)
+  if (argc == 1)
   {
+    printf("Veuillez préciser le chemin du fichier de matrix market.\nutilisation: ./calcul_elements_propres cheminfichier\n");
+    return 1;
+  }
 
-    gsl_spmatrix *sparseMatrix = lit_fichier_mat(argv[1]);
+  else
+  {
+    // on importe la matrice du fichier
+    gsl_spmatrix *A = lit_fichier_mat(argv[1]);
 
-    // initialiser un objet gsl_matrix
-    gsl_matrix *matrix = gsl_matrix_calloc(sparseMatrix->size1, sparseMatrix->size2);
+    // on définit le nombre de valeurs propres à calculer (taille du sous_espace)
+    int taille_sous_espace_int = A->size1;
+    taille_sous_espace_int = taille_sous_espace_int * taille_sous_espace_en_pourcentage / 100;
+    size_t taille_sous_espace = taille_sous_espace_int;
 
-    // parcourir tous les éléments de la matrice creuse
-    for (int i = 0; i < sparseMatrix->size1; i++)
-    {
-      for (int j = sparseMatrix->i[i]; j < sparseMatrix->i[i + 1]; j++)
-      {
-        gsl_matrix_set(matrix, i, sparseMatrix->p[j], sparseMatrix->data[j]);
-      }
-    }
-    calcule_valeurs_propre(matrix);
-    inverse_matrix(matrix);
+    // initialisation de la matrice B et du vecteur yk
+    gsl_matrix *B = gsl_matrix_calloc(taille_sous_espace, taille_sous_espace);
+    gsl_vector *yk = gsl_vector_calloc(A->size1);
 
-    // Libérer la mémoire
-    gsl_matrix_free(matrix);
-    gsl_spmatrix_free(sparseMatrix);
+    gsl_vector_set_zero(yk); // le 1er élément de yk est égal à 1. Les autres sont égal à 0
+    yk->data[0] = 1;
+
+    projection(A, B, yk); // remplit la matrice B et l'affiche
+
+    // TODO: yk=une combinaison linéaire des vecteurs propres au redémarrage
+
+    // libération de la mémoire allouée
+    gsl_spmatrix_free(A);
+    gsl_matrix_free(B);
+    gsl_vector_free(yk);
   }
 
   return 0;
