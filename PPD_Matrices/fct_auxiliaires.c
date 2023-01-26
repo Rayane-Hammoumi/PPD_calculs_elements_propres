@@ -1,6 +1,7 @@
 #include "header.h"
 
-// effectue les produits scalaires et les stocke dans la matrice B
+// effectue les produits scalaires et les stocke dans la matrice B1 et B0
+// B0 correspond à Bm-1, B1 correspond à Bm dans l'énoncé
 // écrase le yk par le yk+1 à chaque tour
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
@@ -13,7 +14,7 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
     return res;
 }
 
-void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_sous_espace)
+void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk, size_t taille_sous_espace)
 {
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
 
@@ -22,13 +23,17 @@ void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_so
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
     printf("taille sous espace: %ld\n", taille_sous_espace);
 
+    Ck = produit_scalaire(yk, yk); // calcul de C0
+    printf("%d\n", __LINE__);
+    gsl_matrix_set(B0, 0, 0, Ck); // stocke C0 dans B0
+    printf("%d\n", __LINE__);
+
     // pour chaque index k de Bk
     for (k = 1; k <= 2 * taille_sous_espace - 1; k++)
     {
         if (k % 2 == 0) // si k est pair alors Ck=produit_scalaire(yk, yk)
         {
             Ck = produit_scalaire(yk, yk);
-            printf("Ck: %g\n", Ck);
         }
         else // sinon Ck=produit_scalaire(yk, yk_suivant)
         {
@@ -48,10 +53,18 @@ void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_so
 
             // calcul de Ck = produit scalaire(yk, yk_suivant)
             Ck = produit_scalaire(yk, yk_suivant);
-            printf("Ck: %g\n", Ck);
 
             // copie les éléments de yk_suivant dans yk pour le prochain tour de boucle
             gsl_vector_memcpy(yk, yk_suivant);
+        }
+        // TODO: stocker c0
+        i = k;
+        printf("%d\n", __LINE__);
+
+        if (i < taille_sous_espace)
+        {
+            gsl_matrix_set(B0, i, 0, Ck); // on remplit la première colonne de B0
+            printf("%d\n", __LINE__);
         }
 
         if (k <= taille_sous_espace)
@@ -61,7 +74,20 @@ void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_so
             while (j >= 1)
             {
                 printf("%d\n", __LINE__);
-                gsl_matrix_set(B, i, j - 1, Ck); // on stocke Ck dans la matrice B
+
+                gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
+                if (k != taille_sous_espace)
+                {
+                    gsl_matrix_set(B0, i, j, Ck); // on stocke Ck dans la matrice B0
+                }
+                else
+                {
+                    if (j != 1) // on ne remplit pas la première colonne de B0 car on la remplit déjà plus haut
+                    {
+                        gsl_matrix_set(B0, i + 1, j - 1, Ck); // on stocke Ck dans la matrice B0
+                    }
+                }
+
                 i++;
                 j--;
             }
@@ -71,15 +97,21 @@ void projection(gsl_spmatrix *A, gsl_matrix *B, gsl_vector *yk, size_t taille_so
             j = taille_sous_espace;
             i = k - taille_sous_espace;
             while (j >= 1 + k - taille_sous_espace)
-            {
-                printf("%d\n", __LINE__);
-                gsl_matrix_set(B, i, j - 1, Ck); // on stocke Ck dans la matrice B
+            { // on ne remplit pas la première colonne de B0 car on la remplit déjà plus haut
+                if (i != 4)
+                { // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
+                    printf("%d, %d, %d\n", __LINE__, i, j);
+                    gsl_matrix_set(B0, i + 1, j - 1, Ck); // on stocke Ck dans la matrice B0
+                    printf("%d\n", __LINE__);
+                }
+                gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
                 j--;
                 i++;
             }
         }
     }
-    affiche_matrice(B);
+    affiche_matrice(B1);
+    affiche_matrice(B0);
     gsl_vector_free(yk_suivant);
 }
 
@@ -153,7 +185,7 @@ gsl_matrix *inverse_matrix(gsl_matrix *A)
     return inverse;
 }
 
-gsl_matrix *multiplier_matrice(gsl_matrix *A, gsl_matrix *B)
+gsl_matrix *multiplier_matrice(gsl_matrix *A, gsl_matrix *B1)
 {
     int m;
 
@@ -171,9 +203,9 @@ gsl_matrix *multiplier_matrice(gsl_matrix *A, gsl_matrix *B)
     }
 
     // produit matriciel
-    if (B->size1 == m)
+    if (B1->size1 == m)
     {
-        gsl_matrix_mul_elements(C, B);
+        gsl_matrix_mul_elements(C, B1);
     }
     else
     {
