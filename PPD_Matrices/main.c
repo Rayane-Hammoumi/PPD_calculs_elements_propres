@@ -22,15 +22,15 @@ int main(int argc, char *argv[])
     // on importe la matrice du fichier
     gsl_spmatrix *A = lit_fichier_mat(argv[1]);
 
-    // initialisation de la matrice B1 et du vecteur yk
     gsl_matrix *B0 = gsl_matrix_calloc(taille_sous_espace, taille_sous_espace);
     gsl_matrix *B1 = gsl_matrix_calloc(taille_sous_espace, taille_sous_espace);
+    gsl_matrix *Vm = gsl_matrix_calloc(A->size1, taille_sous_espace);
     gsl_vector *yk = gsl_vector_calloc(A->size1);
 
     gsl_vector_set_zero(yk); // le 1er élément de yk est égal à 1. Les autres sont égal à 0
     yk->data[0] = 1;
 
-    projection(A, B0, B1, yk, taille_sous_espace); // remplit B0 et B1 et les affiche
+    projection(A, B0, B1, Vm, yk, taille_sous_espace); // remplit B0 et B1 et les affiche
 
     // TODO: yk=une combinaison linéaire des vecteurs propres au redémarrage
     // affiche_matrice(multiplier_matrice(B1, B1));

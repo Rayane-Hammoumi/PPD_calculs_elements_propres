@@ -1,8 +1,22 @@
 #include "header.h"
 
-// effectue les produits scalaires et les stocke dans la matrice B1 et B0
-// B0 correspond à Bm-1, B1 correspond à Bm dans l'énoncé
-// écrase le yk par le yk+1 à chaque tour
+void remplis_colonne_matrice_avec_vecteur(gsl_matrix *matrice, gsl_vector *vecteur, size_t numero_colonne)
+{
+    if (matrice->size1 != vecteur->size)
+    {
+        printf("erreur dans remplis_1e_colonne_matrice_avec_vecteur. La matrice et le vecteur en entrée n'ont pas la même taille.\n");
+    }
+    else
+    {
+        for (size_t i = 0; i < vecteur->size; i++)
+        {
+            printf("fichier %s, ligne %d\n", __FILE__, __LINE__);
+            gsl_matrix_set(matrice, i, numero_colonne, vecteur->data[i]);
+            printf("fichier %s, ligne %d\n", __FILE__, __LINE__);
+        }
+    }
+}
+
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
     double res = 0.0;
@@ -14,19 +28,21 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
     return res;
 }
 
-void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk, size_t taille_sous_espace)
+// effectue les produits scalaires et les stocke dans la matrice B1 et B0
+// B0 correspond à Bm-1, B1 correspond à Bm dans l'énoncé
+// écrase le yk par le yk+1 à chaque tour
+void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm, gsl_vector *yk, size_t taille_sous_espace)
 {
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
 
     double Ck = 0.0, temp = 0.0;
-    int i, j, k, l;
+    int i, j, k, l, o;
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
     printf("taille sous espace: %ld\n", taille_sous_espace);
 
     Ck = produit_scalaire(yk, yk); // calcul de C0
-    printf("%d\n", __LINE__);
-    gsl_matrix_set(B0, 0, 0, Ck); // stocke C0 dans B0
-    printf("%d\n", __LINE__);
+    gsl_matrix_set(B0, 0, 0, Ck);  // stocke C0 dans B0
+    remplis_colonne_matrice_avec_vecteur(Vm, yk, 0);
 
     // pour chaque index k de Bk
     for (k = 1; k <= 2 * taille_sous_espace - 1; k++)
@@ -47,6 +63,11 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk,
                 }
                 yk_suivant->data[l] = temp;
 
+                if (k < taille_sous_espace) // on stocke yk dans Vm
+                {
+                    remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k);
+                }
+
                 // printf("\nvaleur de temp: %g\n", temp);
                 temp = 0.0;
             }
@@ -57,14 +78,12 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk,
             // copie les éléments de yk_suivant dans yk pour le prochain tour de boucle
             gsl_vector_memcpy(yk, yk_suivant);
         }
-        // TODO: stocker c0
+
         i = k;
-        printf("%d\n", __LINE__);
 
         if (i < taille_sous_espace)
         {
             gsl_matrix_set(B0, i, 0, Ck); // on remplit la première colonne de B0
-            printf("%d\n", __LINE__);
         }
 
         if (k <= taille_sous_espace)
@@ -76,6 +95,8 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk,
                 printf("%d\n", __LINE__);
 
                 gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
+                printf("fichier %s, ligne %d\n", __FILE__, __LINE__);
+
                 if (k != taille_sous_espace)
                 {
                     gsl_matrix_set(B0, i, j, Ck); // on stocke Ck dans la matrice B0
@@ -99,10 +120,8 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk,
             while (j >= 1 + k - taille_sous_espace)
             { // on ne remplit pas la première colonne de B0 car on la remplit déjà plus haut
                 if (i != 4)
-                { // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
-                    printf("%d, %d, %d\n", __LINE__, i, j);
+                {                                         // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
                     gsl_matrix_set(B0, i + 1, j - 1, Ck); // on stocke Ck dans la matrice B0
-                    printf("%d\n", __LINE__);
                 }
                 gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
                 j--;
@@ -110,8 +129,12 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_vector *yk,
             }
         }
     }
+    printf("B1:\n");
     affiche_matrice(B1);
+    printf("B0:\n");
     affiche_matrice(B0);
+    printf("Vm:\n");
+    affiche_matrice(Vm);
     gsl_vector_free(yk_suivant);
 }
 
