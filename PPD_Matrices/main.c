@@ -40,16 +40,16 @@ int main(int argc, char *argv[])
     affiche_matrice(Em);
 
     // calcul et affichage de Fm
-    gsl_matrix_mul_elements(Em, B1); // Em devient égal à Em*B1
-                                     // Donc Em est maintenant égal à Fm
+    gsl_matrix *Fm = multiplie_matrices(Em, B1);
     printf("Fm:\n");
-    affiche_matrice(Em);
+    affiche_matrice(Fm);
 
     // libération de la mémoire allouée
     gsl_spmatrix_free(A);
     gsl_matrix_free(B0);
     gsl_matrix_free(B1);
     gsl_matrix_free(Em);
+    gsl_matrix_free(Fm);
     gsl_vector_free(yk);
   }
 

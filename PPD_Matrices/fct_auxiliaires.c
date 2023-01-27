@@ -201,32 +201,9 @@ gsl_matrix *inverse_matrix(gsl_matrix *A)
     return inverse;
 }
 
-gsl_matrix *multiplier_matrice(gsl_matrix *A, gsl_matrix *B1)
+gsl_matrix *multiplie_matrices(gsl_matrix *matrice1, gsl_matrix *matrice2)
 {
-    int m;
-
-    m = A->size1;
-    gsl_vector *v = gsl_vector_alloc(m);
-
-    // allocation de la matrice C
-    gsl_matrix *C = gsl_matrix_alloc(m, m);
-
-    // copie des elements de A dans C
-    for (int i = 0; i < m; i++)
-    {
-        gsl_matrix_get_row(v, A, i);
-        gsl_matrix_set_row(C, i, v);
-    }
-
-    // produit matriciel
-    if (B1->size1 == m)
-    {
-        gsl_matrix_mul_elements(C, B1);
-    }
-    else
-    {
-        printf("error: les deux matrices n'ont pas la même taille\n");
-    }
-
-    return C;
+    gsl_matrix *resultat = gsl_matrix_alloc(matrice1->size1, matrice2->size2);
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, matrice1, matrice2, 0.0, resultat);
+    return resultat;
 }
