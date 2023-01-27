@@ -18,8 +18,6 @@ int main(int argc, char *argv[])
       return 1;
     }
 
-    printf("%ld", taille_sous_espace);
-
     // initialisation des matrices et du vecteur yk
     gsl_spmatrix *A = lit_fichier_mat(argv[1]); // on importe la matrice du fichier
     gsl_matrix *B0 = gsl_matrix_calloc(taille_sous_espace, taille_sous_espace);
@@ -40,6 +38,7 @@ int main(int argc, char *argv[])
     affiche_matrice(Em);
 
     // calcul et affichage de Fm
+    // gsl_matrix *Fm = multiplie_matrices(Em, B1);
     gsl_matrix *Fm = multiplie_matrices(Em, B1);
     printf("Fm:\n");
     affiche_matrice(Fm);

@@ -34,9 +34,9 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
 
     double Ck = 0.0, temp = 0.0;
-    int i, j, k, l;
+    int i, j, k, l, incremente_quand_k_pair = 0;
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
-    printf("taille sous espace: %ld\n", taille_sous_espace);
+    printf("\ntaille sous espace: %ld\n\n", taille_sous_espace);
 
     Ck = produit_scalaire(yk, yk); // calcul de C0
     gsl_matrix_set(B0, 0, 0, Ck);  // stocke C0 dans B0
@@ -48,6 +48,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
         if (k % 2 == 0) // si k est pair alors Ck=produit_scalaire(yk, yk)
         {
             Ck = produit_scalaire(yk, yk);
+            incremente_quand_k_pair++;
         }
         else // sinon Ck=produit_scalaire(yk, yk_suivant)
         {
@@ -61,9 +62,10 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
                 }
                 yk_suivant->data[l] = temp;
 
-                if (k < taille_sous_espace) // on stocke yk dans Vm
+                if (k < taille_sous_espace + incremente_quand_k_pair) // on stocke yk dans Vm
                 {
-                    remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k);
+
+                    remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k - incremente_quand_k_pair);
                 }
                 temp = 0.0;
             }
@@ -113,9 +115,12 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
             i = k - taille_sous_espace;
             while (j >= 1 + k - taille_sous_espace)
             { // on ne remplit pas la première colonne de B0 car on la remplit déjà plus haut
-                if (i != 4)
-                {                                         // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
+                if (i != taille_sous_espace - 1)
+                { // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
+                    printf("fichier %s ligne %d\n", __FILE__, __LINE__);
+                    printf("valeur de k: %d\n", k);
                     gsl_matrix_set(B0, i + 1, j - 1, Ck); // on stocke Ck dans la matrice B0
+                    printf("fichier %s ligne %d\n", __FILE__, __LINE__);
                 }
                 gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
                 j--;
@@ -203,7 +208,25 @@ gsl_matrix *inverse_matrix(gsl_matrix *A)
 
 gsl_matrix *multiplie_matrices(gsl_matrix *matrice1, gsl_matrix *matrice2)
 {
+    if (matrice1->size2 != matrice2->size1)
+    {
+        printf("le nombre de colonnes de matrice1 est différent du nombre de lignes de matrice2.La multiplication a échoué\n");
+        return matrice1;
+    }
+
     gsl_matrix *resultat = gsl_matrix_alloc(matrice1->size1, matrice2->size2);
-    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, matrice1, matrice2, 0.0, resultat);
+    double temp = 0.0;
+    for (int i = 0; i < matrice1->size1; i++)
+    {
+        for (int j = 0; j < matrice2->size2; j++)
+        {
+            for (int k = 0; k < matrice1->size2; k++)
+            {
+                temp += gsl_matrix_get(matrice1, i, k) * gsl_matrix_get(matrice2, k, j);
+            }
+            gsl_matrix_set(resultat, i, j, temp);
+            temp = 0;
+        }
+    }
     return resultat;
 }
