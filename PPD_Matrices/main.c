@@ -65,6 +65,6 @@ int main(int argc, char *argv[])
   gsl_vector_set_zero(valeurs_propres);
   gsl_matrix * vecteurs_propres = gsl_matrix_alloc(m.matrix.size1, m.matrix.size2);
   
-  calcule_valeurs_propre(&m.matrix, valeurs_propres, vecteurs_propres);
+  calcule_valeurs_et_vecteurs_propre(&m.matrix, valeurs_propres, vecteurs_propres);
   return 0;
 }

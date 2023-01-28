@@ -165,7 +165,7 @@ gsl_spmatrix *lit_fichier_mat(char nomFichier[])
     return A;
 }
 
-void calcule_valeurs_propre(gsl_matrix *matrix, gsl_vector* valeurs_propres, gsl_matrix * vecteurs_propres)
+void calcule_valeurs_et_vecteurs_propre(gsl_matrix *matrix, gsl_vector* valeurs_propres, gsl_matrix * vecteurs_propres)
 {
     
     gsl_eigen_nonsymmv_workspace * w = gsl_eigen_nonsymmv_alloc (matrix->size1);
@@ -210,49 +210,6 @@ void calcule_valeurs_propre(gsl_matrix *matrix, gsl_vector* valeurs_propres, gsl
     gsl_matrix_complex_free (evec);
 }
 
-
-/*void calcule_vecteurs_propres(gsl_matrix *matrix, gsl_vector* valeurs_propres, gsl_matrix * vecteurs_propres)
-{
-    // Boucle pour calculer les vecteurs propres pour chaque valeur propre
-    for (int i = 0; i < matrix->size1; i++) {
-        double eigenvalue = gsl_vector_get(valeurs_propres, i);
-
-        // Initialisation du vecteur propre
-        gsl_vector* eigenvector = gsl_vector_alloc(matrix->size1);
-
-        // Initialisation de la matrice A - λI
-        gsl_matrix* A_lambdaI = gsl_matrix_alloc(matrix->size1, matrix->size2);
-        gsl_matrix_memcpy(A_lambdaI, matrix);
-        gsl_matrix_add_constant(A_lambdaI, -eigenvalue);
-        gsl_permutation* p = gsl_permutation_alloc(matrix->size1);
-        // Résolution du système linéaire (A - λI)x = 0
-        int signum;
-        
-        // LU decomposition
-        gsl_linalg_HH_decomp(A_lambdaI, p, &signum);
-        int status = gsl_linalg_HH_solve(A_lambdaI, p, eigenvector, eigenvector);
-        if (status) {
-            printf("Erreur lors de la résolution du système linéaire\n");
-        }
-
-        // Stockage du vecteur propre dans la matrice des vecteurs propres
-        gsl_matrix_set_col(vecteurs_propres, i, eigenvector);
-
-        // Libération de la mémoire
-        gsl_matrix_free(A_lambdaI);
-        gsl_vector_free(eigenvector);
-    }
-
-    // Affichage des vecteurs propres
-    for (int i = 0; i < matrix->size1; i++) {
-        for (int j = 0; j < matrix->size2; j++) {
-            printf("%g ", gsl_matrix_get(vecteurs_propres, i, j));
-        }
-        printf("\n");
-    }
-
-}
-*/
 
 gsl_matrix *inverse_matrix(gsl_matrix *A)
 {
