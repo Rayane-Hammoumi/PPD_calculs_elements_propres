@@ -149,6 +149,14 @@ void affiche_matrice(gsl_matrix *A)
     }
     printf("\n\n");
 }
+void affiche_vecteur(gsl_vector *v, int taille)
+{
+    //printf("Vecteur :\n");
+    for (int i = 0; i < taille; i++) {
+        printf("%g ", gsl_vector_get(v, i));
+    }
+    printf("\n\n");
+}
 
 gsl_spmatrix *lit_fichier_mat(char nomFichier[])
 {
@@ -196,13 +204,14 @@ void calcule_valeurs_et_vecteurs_propre(gsl_matrix *matrix, gsl_vector* valeurs_
 
     //Pour les vecteurs propres
     // traduit gsl_matrix_complex en gsl_matrix
+    // on met les vecteurs propres associés a une valeur propre ligne par ligne
     for (size_t i = 0; i < evec->size1; i++) {
         for (size_t j = 0; j < evec->size2; j++) {
             gsl_matrix_set(vecteurs_propres, i, j, GSL_REAL(gsl_matrix_complex_get(evec, i, j)));
         }
     }
 
-    //affiche_matrice(vecteurs_propres);
+    affiche_matrice(vecteurs_propres);
 
 
   
@@ -257,4 +266,27 @@ gsl_matrix *multiplie_matrices(gsl_matrix *matrice1, gsl_matrix *matrice2)
         }
     }
     return resultat;
+}
+
+gsl_vector* produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v)
+{
+    //printf("Produit matrice-vecteur :\n");
+    gsl_vector *result = gsl_vector_alloc(m->size1);
+    
+    int compt = 0;
+    for (int i = 0; i < m->size1; i++) 
+    {
+        double res = 0;
+        for (int j = 0; j < m->size2; j++) 
+        {
+            res += gsl_matrix_get(m, i, j) * gsl_vector_get(v, j);
+        }
+        gsl_vector_set(result, compt, res);
+        compt++;
+        
+    }
+    
+    //affiche_vecteur(result, m->size1);
+    
+    return result;
 }

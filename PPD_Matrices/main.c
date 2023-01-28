@@ -43,6 +43,40 @@ int main(int argc, char *argv[])
     printf("Fm:\n");
     affiche_matrice(Fm);
 
+
+    // Calcul des valeurs/vecteurs propres de Fm
+    gsl_vector* valeurs_propres = gsl_vector_calloc(Fm->size1);
+    gsl_matrix * vecteurs_propres = gsl_matrix_alloc(Fm->size1, Fm->size2);
+    printf("matrice vecteurs_propres:\n");
+    calcule_valeurs_et_vecteurs_propre(Fm, valeurs_propres, vecteurs_propres);
+
+    printf("vecteurs_propres size1 = %ld et Vm size1 = %ld\n", vecteurs_propres->size1, Vm->size1);
+    printf("vecteurs_propres size2 = %ld et Vm size2 = %ld\n", vecteurs_propres->size2, Vm->size2);
+
+    // Partie 3
+    // qi = Vm x ui avec ui = vecteur propre de Fm
+    printf("\nProduit matrice-vecteur :\n");
+    gsl_matrix *qi = gsl_matrix_alloc(Vm->size1, Vm->size2);
+    for (size_t i = 0; i < vecteurs_propres->size1; i++)
+    {
+      gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i);// vecteurs propres d'une valeur propre (tt la colonne)
+      gsl_vector *ui = &tempui.vector;
+      //affiche_vecteur(ui, Fm->size2);
+
+      gsl_matrix_set_col(qi, i, produit_matrice_vecteur(Vm, ui));
+
+      /*for (size_t j = 0; j < vecteurs_propres->size2; j++)
+      {
+        gsl_vector *ui1 = gsl_vector_calloc(1);
+        gsl_vector_set(ui1, 0, gsl_vector_get(ui, j));
+        produit_matrice_vecteur(Vm, ui1);
+      }*/
+      
+    }
+
+    affiche_matrice(qi);
+
+
     // libération de la mémoire allouée
     gsl_spmatrix_free(A);
     gsl_matrix_free(B0);
@@ -52,19 +86,20 @@ int main(int argc, char *argv[])
     gsl_vector_free(yk);
   }
 
-  
 
-  double data[] = { -1.0, 1.0, -1.0, 1.0,
-                    -8.0, 4.0, -2.0, 1.0,
-                    27.0, 9.0, 3.0, 1.0,
-                    64.0, 16.0, 4.0, 1.0 };
+/*
+  double data[] = { 0, 3, 5, 
+                    5, 5, 2,};
 
-  gsl_matrix_view m = gsl_matrix_view_array (data, 4, 4);
+  gsl_matrix_view m = gsl_matrix_view_array (data, 2, 3);
   affiche_matrice(&m.matrix);
-  gsl_vector* valeurs_propres = gsl_vector_calloc(m.matrix.size1);
-  gsl_vector_set_zero(valeurs_propres);
-  gsl_matrix * vecteurs_propres = gsl_matrix_alloc(m.matrix.size1, m.matrix.size2);
-  
-  calcule_valeurs_et_vecteurs_propre(&m.matrix, valeurs_propres, vecteurs_propres);
+  gsl_vector* v = gsl_vector_calloc(m.matrix.size2);
+  gsl_vector_set(v, 0, 3);
+  gsl_vector_set(v, 1, 4);
+  gsl_vector_set(v, 2, 3);
+
+  produit_matrice_vecteur(&m.matrix, v);*/
+
+ 
   return 0;
 }
