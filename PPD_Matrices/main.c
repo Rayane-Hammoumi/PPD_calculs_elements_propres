@@ -51,6 +51,20 @@ int main(int argc, char *argv[])
     gsl_matrix_free(Fm);
     gsl_vector_free(yk);
   }
+  gsl_matrix *m = gsl_matrix_alloc(2, 2);
+  gsl_matrix_set(m, 0, 0, 1.0);
+  gsl_matrix_set(m, 0, 1, 2.0);
+  gsl_matrix_set(m, 1, 0, 4.0);
+  gsl_matrix_set(m, 1, 1, 3.0);
+  
+  affiche_matrice(m);
+
+  gsl_vector* valeurs_propres = gsl_vector_calloc(2);
+  gsl_vector_set_zero(valeurs_propres);
+  gsl_matrix * vecteurs_propres = gsl_matrix_alloc(2, 2);
+
+  
+  calcule_valeurs_propre(m, valeurs_propres, vecteurs_propres);
 
   return 0;
 }

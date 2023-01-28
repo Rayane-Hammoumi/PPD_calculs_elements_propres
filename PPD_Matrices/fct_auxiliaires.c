@@ -165,23 +165,50 @@ gsl_spmatrix *lit_fichier_mat(char nomFichier[])
     return A;
 }
 
-void calcule_valeurs_propre(gsl_matrix *matrix)
+void calcule_valeurs_propre(gsl_matrix *matrix, gsl_vector* valeurs_propres, gsl_matrix * vecteurs_propres)
 {
-    gsl_eigen_symmv_workspace *w = gsl_eigen_symmv_alloc(matrix->size1);
-    gsl_vector *eval = gsl_vector_alloc(matrix->size1);
-    gsl_matrix *evec = gsl_matrix_alloc(matrix->size1, matrix->size1);
-    gsl_eigen_symmv(matrix, eval, evec, w);
-    gsl_eigen_symmv_free(w);
+    gsl_eigen_nonsymmv_workspace * w = gsl_eigen_nonsymmv_alloc (matrix->size1);
+    gsl_vector_complex *eval = gsl_vector_complex_alloc (matrix->size1);
+    gsl_matrix_complex *evec = gsl_matrix_complex_alloc (matrix->size1, matrix->size2);
+    gsl_eigen_nonsymmv (matrix, eval, evec, w);
+    gsl_eigen_nonsymmv_free (w);
 
-    // afficher les valeurs propres
+
     for (int i = 0; i < matrix->size1; i++)
     {
-        printf("valeur propre = %g\n", gsl_vector_get(eval, i));
+        gsl_complex eval_i = gsl_vector_complex_get (eval, i);
+        gsl_vector_complex_view evec_i = gsl_matrix_complex_column (evec, i);
+
+        printf ("Valeur propre = %g\n", GSL_REAL(eval_i));
+        printf ("Vecteur propre : \n");
+        for (int j = 0; j < matrix->size1; ++j)
+        {
+            gsl_complex z = gsl_vector_complex_get(&evec_i.vector, j);
+            printf("%g\n", GSL_REAL(z));
+        }
+    }
+    //Pour les valeurs propres 
+    // traduit le gsl_vector_complex en gsl_vector
+    for (size_t i = 0; i < eval->size; i++) {
+        gsl_vector_set (valeurs_propres, i, GSL_REAL(gsl_vector_complex_get(eval, i)));
     }
 
-    gsl_vector_free(eval);
-    gsl_matrix_free(evec);
+    //Pour les vecteurs propres
+    // traduit gsl_matrix_complex en gsl_matrix
+    for (size_t i = 0; i < evec->size1; i++) {
+        for (size_t j = 0; j < evec->size2; j++) {
+            gsl_matrix_set(vecteurs_propres, i, j, GSL_REAL(gsl_matrix_complex_get(evec, i, j)));
+        }
+    }
+
+    //affiche_matrice(vecteurs_propres);
+
+
+  
+    gsl_vector_complex_free (eval);
+    gsl_matrix_complex_free (evec);
 }
+
 
 gsl_matrix *inverse_matrix(gsl_matrix *A)
 {
