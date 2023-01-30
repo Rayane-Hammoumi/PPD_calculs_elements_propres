@@ -11,6 +11,7 @@
 #include <omp.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 // opérations sur vecteurs
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant);

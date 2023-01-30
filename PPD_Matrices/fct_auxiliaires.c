@@ -75,11 +75,11 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
     double res = 0.0;
 
-    //initialisation de la variable indiquant le temps d'exécution
-    double time_spent = 0.0;
+    struct timeval start, end;
+    double elapsed_time;
+ 
+    gettimeofday(&start,NULL);
 
-    //variable indiquant le début de l'exécution
-    clock_t begin = clock();
 
     // pour chaque élément de result
     #pragma omp parallel for reduction(+:res)
@@ -88,11 +88,10 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
         res += yk->data[k] * yk_suivant->data[k];
     }
 
-    //variable indiquant la fin de l'exécution
-    clock_t end = clock();
-
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("time spend prd scal : %f \n", time_spent);
+    gettimeofday(&end,NULL);
+    elapsed_time = (end.tv_sec - start.tv_sec) * 1000.0;
+    elapsed_time += (end.tv_usec - start.tv_usec) / 1000.0;
+    printf("[produit_scalaire] Temps d'execution : %f ms\n", elapsed_time);
 
     return res;
 }
@@ -356,12 +355,10 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
 
     double temp = 0.0;
 
-      //initialisation de la variable indiquant le temps d'exécution
-    double time_spent = 0.0;
-
-    //variable indiquant le début de l'exécution
-    clock_t begin = clock();
-
+    struct timeval start, end;
+    double elapsed_time;
+ 
+    gettimeofday(&start,NULL);
 
     // pour chaque élément de resultat
     #pragma omp parallel for schedule(static)
@@ -376,11 +373,11 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
         temp = 0.0;
     }
 
-     clock_t end = clock();
 
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("time spend prd sp vect : %f \n", time_spent);
-    
+    gettimeofday(&end,NULL);
+    elapsed_time = (end.tv_sec - start.tv_sec) * 1000.0;
+    elapsed_time += (end.tv_usec - start.tv_usec) / 1000.0;
+    printf("[produit_spmatrice_vecteur] Temps d'execution : %f ms\n", elapsed_time);
 
     // affiche_vecteur(result, m->size1);
 }

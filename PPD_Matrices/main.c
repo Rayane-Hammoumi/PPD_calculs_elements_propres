@@ -40,9 +40,11 @@ int main(int argc, char *argv[])
 
     // debut for TODO:
     // pour stocker le temps d'exécution du code
-    double time_spent = 0.0;
+    struct timeval start, end;
+    double elapsed_time;
+ 
+    gettimeofday(&start,NULL);
 
-    clock_t begin = clock();
     while (!precision_atteinte)
     {
 
@@ -71,18 +73,14 @@ int main(int argc, char *argv[])
       // Partie 3
       printf("\nProduit matrice-vecteur :\n");
       // pour stocker le temps d'exécution du code
-      double time_spent = 0.0;
- 
-      clock_t begin = clock();
+      time_t begin = time(NULL);
+      
       calcule_qi(A, qi, vecteurs_propres, Vm, taille_sous_espace);
      
-      clock_t end = clock();
+      time_t end = time(NULL);
+
   
-      // calcule le temps écoulé en trouvant la différence (end - begin) et
-      // divisant la différence par CLOCKS_PER_SEC pour convertir en secondes
-      time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-  
-      printf("[Produit matrice-vecteur] The elapsed time is %f seconds\n", time_spent);
+      printf("[Produit matrice-vecteur] The elapsed time is %ld seconds\n", (end - begin));
 
       affiche_matrice(qi);
 
@@ -111,14 +109,11 @@ int main(int argc, char *argv[])
     gsl_matrix_free(vecteurs_propres);
     gsl_matrix_free(qi);
     gsl_vector_free(result);
-  
-    clock_t end = clock();
-    
-    // calcule le temps écoulé en trouvant la différence (end - begin) et
-    // divisant la différence par CLOCKS_PER_SEC pour convertir en secondes
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
 
-    printf("[Temps d'exécution TOTAL] = %f seconds\n", time_spent);
+
+    gettimeofday(&end,NULL);
+    elapsed_time = (end.tv_sec - start.tv_sec);
+    printf("[Temps d'execution TOTAL] = %f ms\n", elapsed_time);
   }
   /*
     double data[] = { 0, 3, 5,
