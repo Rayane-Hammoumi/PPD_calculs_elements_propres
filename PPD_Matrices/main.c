@@ -39,6 +39,10 @@ int main(int argc, char *argv[])
     gsl_vector_set(yk, 0, 1); // en effet on choisit de prendre x = (1, 0, 0...) donc ||x||=1
 
     // debut for TODO:
+    // pour stocker le temps d'exécution du code
+    double time_spent = 0.0;
+
+    clock_t begin = clock();
     while (!precision_atteinte)
     {
 
@@ -107,8 +111,15 @@ int main(int argc, char *argv[])
     gsl_matrix_free(vecteurs_propres);
     gsl_matrix_free(qi);
     gsl_vector_free(result);
-  }
+  
+    clock_t end = clock();
+    
+    // calcule le temps écoulé en trouvant la différence (end - begin) et
+    // divisant la différence par CLOCKS_PER_SEC pour convertir en secondes
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
 
+    printf("[Temps d'exécution TOTAL] = %f seconds\n", time_spent);
+  }
   /*
     double data[] = { 0, 3, 5,
                       5, 5, 2,};
