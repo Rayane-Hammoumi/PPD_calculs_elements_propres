@@ -54,10 +54,16 @@ int main(int argc, char *argv[])
     // Partie 3
     // qi = Vm x ui avec ui = vecteur propre de Fm
     printf("\nProduit matrice-vecteur :\n");
+    // pour stocker le temps d'exécution du code
+    double time_spent = 0.0;
+ 
+    clock_t begin = clock();
+
     gsl_matrix *qi = gsl_matrix_alloc(A->size1, taille_sous_espace); // matrice qui contient les vecteurs qi
     gsl_vector *result = gsl_vector_alloc(A->size1);
 
     // calculs des vecteurs qi qu'on stocke dans la gsl_matrix qi
+    #pragma omp for schedule(static)
     for (size_t i = 0; i < taille_sous_espace; i++)
     {
       gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i); // vecteurs propres d'une valeur propre (tt la colonne)
@@ -74,7 +80,14 @@ int main(int argc, char *argv[])
       }*/
     }
 
+    clock_t end = clock();
     affiche_matrice(qi);
+
+     // calcule le temps écoulé en trouvant la différence (end - begin) et
+    // divisant la différence par CLOCKS_PER_SEC pour convertir en secondes
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+ 
+    printf("[Produit matrice-vecteur]\nThe elapsed time is %f seconds, THREADS : %d\n", time_spent, omp_get_max_threads());
 
     // libération de la mémoire allouée
     gsl_spmatrix_free(A);
