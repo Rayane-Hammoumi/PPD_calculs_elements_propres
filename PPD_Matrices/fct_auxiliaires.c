@@ -9,6 +9,8 @@ int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, 
     gsl_vector *lambda_multiplie_par_qi = gsl_vector_alloc(qi->size1);
     gsl_vector *res_soustraction = gsl_vector_alloc(qi->size1);
 
+    //parallélisation de la boucle for
+    #pragma omp parallel for
     for (int i = 0; i < qi->size2; i++)
     {
         gsl_vector_view tempui = gsl_matrix_column(qi, i); // on récupère une colonne dans la matrice contenant les vecteurs qi
@@ -35,6 +37,7 @@ int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, 
     }
 }
 
+
 void soustrait_vecteur2_au_vecteur1(gsl_vector *vecteur1, gsl_vector *vecteur2, gsl_vector *resultat)
 {
     if (vecteur1->size != vecteur2->size)
@@ -43,24 +46,32 @@ void soustrait_vecteur2_au_vecteur1(gsl_vector *vecteur1, gsl_vector *vecteur2, 
         exit(1);
     }
 
+    //parallélisation de la boucle for
+    #pragma omp parallel for
     for (int i = 0; i < vecteur1->size; i++)
     {
         gsl_vector_set(resultat, i, gsl_vector_get(vecteur1, i) - gsl_vector_get(vecteur2, i));
     }
 }
 
+
 void produit_constante_vecteur(double constante, gsl_vector *vecteur, gsl_vector *resultat)
 {
+    //parallélisation de la boucle for
+    #pragma omp parallel for
     for (int i = 0; i < vecteur->size; i++)
     {
         gsl_vector_set(resultat, i, gsl_vector_get(vecteur, i) * constante);
     }
 }
 
+
 double calcule_norme(gsl_vector *vecteur)
 {
     double resultat = 0;
 
+    //parallélisation de la boucle for
+    #pragma omp parallel for reduction(+:resultat)
     for (int i = 0; i < vecteur->size; i++)
     {
         resultat += vecteur->data[i] * vecteur->data[i];
@@ -70,6 +81,7 @@ double calcule_norme(gsl_vector *vecteur)
 
     return resultat;
 }
+
 
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {

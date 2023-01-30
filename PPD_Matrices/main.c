@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
 
 
     gettimeofday(&end,NULL);
+    
     elapsed_time = (end.tv_sec - start.tv_sec);
     printf("[Temps d'execution TOTAL] = %f s\n", elapsed_time);
   }
