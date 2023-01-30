@@ -73,30 +73,20 @@ double calcule_norme(gsl_vector *vecteur)
 
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
+    if (yk->size != yk_suivant->size)
+    {
+        printf("échec du produit scalaire. Les vecteurs n'ont pas la même taille\n");
+        exit(EXIT_FAILURE);
+    }
     double res = 0.0;
-
-    //initialisation de la variable indiquant le temps d'exécution
-    double time_spent = 0.0;
-
-    //variable indiquant le début de l'exécution
-    clock_t begin = clock();
-
-    // pour chaque élément de result
-    #pragma omp parallel for reduction(+:res)
-    for (size_t k = 0; k < yk->size; k++)
+    size_t k;
+    // #pragma omp parallel for schedule(static, yk->size / omp_get_num_threads())
+    for (k = 0; k < yk->size; k++)
     {
         res += yk->data[k] * yk_suivant->data[k];
     }
-
-    //variable indiquant la fin de l'exécution
-    clock_t end = clock();
-
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("time spend prd scal : %f \n", time_spent);
-
     return res;
 }
-
 
 // effectue les produits scalaires et les stocke dans la matrice B1 et B0
 // B0 correspond à Bm-1, B1 correspond à Bm dans l'énoncé
@@ -337,7 +327,6 @@ void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
     double temp = 0.0;
 
     // pour chaque élément de result
-    #pragma omp for
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
@@ -356,17 +345,9 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
 {
     // printf("Produit matrice-vecteur :\n");
 
-    double temp = 0;
-
-    //initialisation de la variable indiquant le temps d'exécution
-    double time_spent = 0.0;
-
-    //variable indiquant le début de l'exécution
-    clock_t begin = clock();
+    double temp = 0.0;
 
     // pour chaque élément de result
-    //paralélisation de la première boucle for
-    #pragma omp parallel for private(temp) schedule(static)
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
@@ -375,15 +356,8 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
             temp += gsl_spmatrix_get(m, i, j) * gsl_vector_get(v, j);
         }
         gsl_vector_set(resultat, i, temp);
-        temp = 0;
-        printf("thrd num : %d\n", omp_get_thread_num());
+        temp = 0.0;
     }
-
-    clock_t end = clock();
-
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("time spend prd sp vect : %f \n", time_spent);
-    
 
     // affiche_vecteur(result, m->size1);
 }

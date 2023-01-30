@@ -9,8 +9,6 @@
 #include <math.h>
 #include <ctype.h>
 #include <omp.h>
-#include <time.h>       
-#include <unistd.h> 
 
 void affiche_matrice(gsl_matrix *A);
 void affiche_vecteur(gsl_vector *v, int taille);
