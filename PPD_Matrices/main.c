@@ -66,23 +66,20 @@ int main(int argc, char *argv[])
 
       // Partie 3
       printf("\nProduit matrice-vecteur :\n");
+      // pour stocker le temps d'exécution du code
+      double time_spent = 0.0;
+ 
+      clock_t begin = clock();
+      calcule_qi(A, qi, vecteurs_propres, Vm, taille_sous_espace);
+     
+      clock_t end = clock();
+  
+      // calcule le temps écoulé en trouvant la différence (end - begin) et
+      // divisant la différence par CLOCKS_PER_SEC pour convertir en secondes
+      time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+  
+      printf("[Produit matrice-vecteur] The elapsed time is %f seconds\n", time_spent);
 
-      // calculs des vecteurs qi = Vm x ui qu'on stocke dans la gsl_matrix qi
-      for (size_t i = 0; i < taille_sous_espace; i++)
-      {
-        gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i); // vecteurs propres d'une valeur propre (tt la colonne)
-        gsl_vector *ui = &tempui.vector;
-        // affiche_vecteur(ui, taille_sous_espace);
-        produit_matrice_vecteur(Vm, ui, result);
-        gsl_matrix_set_col(qi, i, result);
-
-        /*for (size_t j = 0; j < vecteurs_propres->size2; j++)
-        {
-          gsl_vector *ui1 = gsl_vector_calloc(1);
-          gsl_vector_set(ui1, 0, gsl_vector_get(ui, j));
-          produit_matrice_vecteur(Vm, ui1);
-        }*/
-      }
       affiche_matrice(qi);
 
       if (verifie_si_precision_atteinte(A, valeurs_propres, qi, epsilon) == 1)

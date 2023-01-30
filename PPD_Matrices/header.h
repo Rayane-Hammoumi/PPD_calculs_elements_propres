@@ -9,6 +9,8 @@
 #include <math.h>
 #include <ctype.h>
 #include <omp.h>
+#include <time.h>      
+#include <unistd.h> 
 
 void affiche_matrice(gsl_matrix *A);
 void affiche_vecteur(gsl_vector *v, int taille);
@@ -24,3 +26,4 @@ double calcule_norme(gsl_vector *vecteur);
 int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, gsl_matrix *qi, double epsilon);
 void produit_constante_vecteur(double constante, gsl_vector *vecteur, gsl_vector *resultat);
 void soustrait_vecteur2_au_vecteur1(gsl_vector *vecteur1, gsl_vector *vecteur2, gsl_vector *resultat);
+void calcule_qi(gsl_spmatrix *A, gsl_matrix *qi, gsl_matrix *vecteurs_propres, gsl_matrix *Vm, size_t taille_sous_espace);
