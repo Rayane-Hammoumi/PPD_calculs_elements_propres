@@ -21,8 +21,6 @@ gsl_matrix *multiplie_matrices(gsl_matrix *matrice1, gsl_matrix *matrice2);
 void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat);
 void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resultat);
 double calcule_norme(gsl_vector *vecteur);
-int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, gsl_matrix *qi);
+int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, gsl_matrix *qi, double epsilon);
 void produit_constante_vecteur(double constante, gsl_vector *vecteur, gsl_vector *resultat);
 void soustrait_vecteur2_au_vecteur1(gsl_vector *vecteur1, gsl_vector *vecteur2, gsl_vector *resultat);
-
-#define epsilon 0.00005

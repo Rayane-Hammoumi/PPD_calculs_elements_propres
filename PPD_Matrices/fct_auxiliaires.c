@@ -1,7 +1,7 @@
 #include "header.h"
 
 // renvoie 1 si la précision est atteinte, sinon 0
-int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, gsl_matrix *qi)
+int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, gsl_matrix *qi, double epsilon)
 {
     int max = 0;
     double temp = 0.0;
@@ -326,7 +326,7 @@ void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
 
     double temp = 0.0;
 
-    // pour chaque élément de result
+    // pour chaque élément de resultat
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
@@ -338,7 +338,7 @@ void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
         temp = 0.0;
     }
 
-    // affiche_vecteur(result, m->size1);
+    // affiche_vecteur(resultat, m->size1);
 }
 
 void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resultat)
@@ -347,7 +347,7 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
 
     double temp = 0.0;
 
-    // pour chaque élément de result
+    // pour chaque élément de resultat
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
