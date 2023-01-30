@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     gsl_vector *yk = gsl_vector_calloc(A->size1);
 
     gsl_vector_set_zero(yk); // le 1er élément de yk est égal à 1. Les autres sont égal à 0
-    yk->data[0] = 1;
+    gsl_vector_set(yk, 0, 1);
 
     projection(A, B0, B1, Vm, yk, taille_sous_espace); // remplit B0, B1 et Vm et les affiche
 
@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
     gsl_matrix *qi = gsl_matrix_alloc(A->size1, taille_sous_espace); // matrice qui contient les vecteurs qi
     gsl_vector *result = gsl_vector_alloc(A->size1);
 
+    // calculs des vecteurs qi qu'on stocke dans la gsl_matrix qi
     for (size_t i = 0; i < taille_sous_espace; i++)
     {
       gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i); // vecteurs propres d'une valeur propre (tt la colonne)

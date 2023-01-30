@@ -1,5 +1,62 @@
 #include "header.h"
 
+// renvoie 1 si la précision est atteinte, sinon 0
+int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, gsl_matrix *qi)
+{
+    int max = 0;
+    double temp = 0.0;
+    gsl_vector *A_multiplie_par_qi = gsl_vector_alloc(A->size1);
+    gsl_vector *lambda_multiplie_par_qi = gsl_vector_alloc(qi->size1);
+    gsl_vector *res_soustraction = gsl_vector_alloc(qi->size1);
+
+    for (int i = 0; i < qi->size2; i++)
+    {
+        gsl_vector_view tempui = gsl_matrix_column(qi, i); // on récupère une colonne dans la matrice contenant les vecteurs qi
+        gsl_vector *vecteur_qi = &tempui.vector;
+
+        produit_spmatrice_vecteur(A, vecteur_qi, A_multiplie_par_qi);
+        produit_constante_vecteur(gsl_vector_get(valeurs_propres, i), vecteur_qi, lambda_multiplie_par_qi);
+        soustrait_vecteur2_au_vecteur1(A_multiplie_par_qi, lambda_multiplie_par_qi, res_soustraction);
+        temp = calcule_norme(res_soustraction);
+
+        if (temp > max)
+        {
+            max = temp;
+        }
+    }
+
+    if (max > epsilon)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+void soustrait_vecteur2_au_vecteur1(gsl_vector *vecteur1, gsl_vector *vecteur2, gsl_vector *resultat)
+{
+    if (vecteur1->size != vecteur2->size)
+    {
+        printf("Échec de la soustraction des vecteurs. Ils n'ont pas la même taille.\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < vecteur1->size; i++)
+    {
+        gsl_vector_set(resultat, i, gsl_vector_get(vecteur1, i) - gsl_vector_get(vecteur2, i));
+    }
+}
+
+void produit_constante_vecteur(double constante, gsl_vector *vecteur, gsl_vector *resultat)
+{
+    for (int i = 0; i < vecteur->size; i++)
+    {
+        gsl_vector_set(resultat, i, gsl_vector_get(vecteur, i) * constante);
+    }
+}
+
 double calcule_norme(gsl_vector *vecteur)
 {
     double resultat = 0;
@@ -12,20 +69,6 @@ double calcule_norme(gsl_vector *vecteur)
     resultat = sqrt(resultat);
 
     return resultat;
-}
-void remplis_colonne_matrice_avec_vecteur(gsl_matrix *matrice, gsl_vector *vecteur, size_t numero_colonne)
-{
-    if (matrice->size1 != vecteur->size)
-    {
-        printf("erreur dans remplis_1e_colonne_matrice_avec_vecteur. La matrice et le vecteur en entrée n'ont pas la même taille.\n");
-    }
-    else
-    {
-        for (size_t i = 0; i < vecteur->size; i++)
-        {
-            gsl_matrix_set(matrice, i, numero_colonne, vecteur->data[i]);
-        }
-    }
 }
 
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
@@ -60,7 +103,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
 
     Ck = produit_scalaire(yk, yk); // calcul de C0
     gsl_matrix_set(B0, 0, 0, Ck);  // stocke C0 dans B0
-    remplis_colonne_matrice_avec_vecteur(Vm, yk, 0);
+    gsl_matrix_set_col(Vm, 0, yk);
 
     // pour chaque index k de Bk
     for (k = 1; k <= 2 * taille_sous_espace - 1; k++)
@@ -76,7 +119,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
 
             if (k < taille_sous_espace + incremente_quand_k_pair) // on stocke yk dans Vm
             {
-                remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k - incremente_quand_k_pair);
+                gsl_matrix_set_col(Vm, k - incremente_quand_k_pair, yk_suivant);
             }
 
             // calcul de Ck = produit scalaire(yk, yk_suivant)
