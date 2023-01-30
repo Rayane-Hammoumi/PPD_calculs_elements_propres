@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 
     gettimeofday(&end,NULL);
     elapsed_time = (end.tv_sec - start.tv_sec);
-    printf("[Temps d'execution TOTAL] = %f ms\n", elapsed_time);
+    printf("[Temps d'execution TOTAL] = %f s\n", elapsed_time);
   }
   /*
     double data[] = { 0, 3, 5,
