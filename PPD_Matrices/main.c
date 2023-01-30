@@ -38,15 +38,13 @@ int main(int argc, char *argv[])
     affiche_matrice(Em);
 
     // calcul et affichage de Fm
-    // gsl_matrix *Fm = multiplie_matrices(Em, B1);
     gsl_matrix *Fm = multiplie_matrices(Em, B1);
     printf("Fm:\n");
     affiche_matrice(Fm);
 
-
     // Calcul des valeurs/vecteurs propres de Fm
-    gsl_vector* valeurs_propres = gsl_vector_calloc(Fm->size1);
-    gsl_matrix * vecteurs_propres = gsl_matrix_alloc(Fm->size1, Fm->size2);
+    gsl_vector *valeurs_propres = gsl_vector_calloc(Fm->size1);
+    gsl_matrix *vecteurs_propres = gsl_matrix_alloc(Fm->size1, Fm->size2);
     printf("matrice vecteurs_propres:\n");
     calcule_valeurs_et_vecteurs_propre(Fm, valeurs_propres, vecteurs_propres);
 
@@ -56,14 +54,15 @@ int main(int argc, char *argv[])
     // Partie 3
     // qi = Vm x ui avec ui = vecteur propre de Fm
     printf("\nProduit matrice-vecteur :\n");
-    gsl_matrix *qi = gsl_matrix_alloc(Vm->size1, Vm->size2);
+    gsl_matrix *qi = gsl_matrix_alloc(Vm->size1, Vm->size2); // matrice qui contient les vecteurs qi
+    gsl_vector *result = gsl_vector_alloc(Vm->size1);
     for (size_t i = 0; i < vecteurs_propres->size1; i++)
     {
-      gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i);// vecteurs propres d'une valeur propre (tt la colonne)
+      gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i); // vecteurs propres d'une valeur propre (tt la colonne)
       gsl_vector *ui = &tempui.vector;
-      //affiche_vecteur(ui, Fm->size2);
-
-      gsl_matrix_set_col(qi, i, produit_matrice_vecteur(Vm, ui));
+      // affiche_vecteur(ui, Fm->size2);
+      produit_matrice_vecteur(Vm, ui, result);
+      gsl_matrix_set_col(qi, i, result);
 
       /*for (size_t j = 0; j < vecteurs_propres->size2; j++)
       {
@@ -71,11 +70,9 @@ int main(int argc, char *argv[])
         gsl_vector_set(ui1, 0, gsl_vector_get(ui, j));
         produit_matrice_vecteur(Vm, ui1);
       }*/
-      
     }
 
     affiche_matrice(qi);
-
 
     // libération de la mémoire allouée
     gsl_spmatrix_free(A);
@@ -86,20 +83,18 @@ int main(int argc, char *argv[])
     gsl_vector_free(yk);
   }
 
+  /*
+    double data[] = { 0, 3, 5,
+                      5, 5, 2,};
 
-/*
-  double data[] = { 0, 3, 5, 
-                    5, 5, 2,};
+    gsl_matrix_view m = gsl_matrix_view_array (data, 2, 3);
+    affiche_matrice(&m.matrix);
+    gsl_vector* v = gsl_vector_calloc(m.matrix.size2);
+    gsl_vector_set(v, 0, 3);
+    gsl_vector_set(v, 1, 4);
+    gsl_vector_set(v, 2, 3);
 
-  gsl_matrix_view m = gsl_matrix_view_array (data, 2, 3);
-  affiche_matrice(&m.matrix);
-  gsl_vector* v = gsl_vector_calloc(m.matrix.size2);
-  gsl_vector_set(v, 0, 3);
-  gsl_vector_set(v, 1, 4);
-  gsl_vector_set(v, 2, 3);
+    produit_matrice_vecteur(&m.matrix, v);*/
 
-  produit_matrice_vecteur(&m.matrix, v);*/
-
- 
   return 0;
 }

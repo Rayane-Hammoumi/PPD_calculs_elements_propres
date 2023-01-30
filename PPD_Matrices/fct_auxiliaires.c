@@ -1,5 +1,18 @@
 #include "header.h"
 
+double calcule_norme(gsl_vector *vecteur)
+{
+    double resultat = 0;
+
+    for (int i = 0; i < vecteur->size; i++)
+    {
+        resultat += vecteur->data[i] * vecteur->data[i];
+    }
+
+    resultat = sqrt(resultat);
+
+    return resultat;
+}
 void remplis_colonne_matrice_avec_vecteur(gsl_matrix *matrice, gsl_vector *vecteur, size_t numero_colonne)
 {
     if (matrice->size1 != vecteur->size)
@@ -33,8 +46,8 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
 {
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
 
-    double Ck = 0.0, temp = 0.0;
-    int i, j, k, l, incremente_quand_k_pair = 0;
+    double Ck = 0.0;
+    int i, j, k, incremente_quand_k_pair = 0;
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
     printf("\ntaille sous espace: %ld\n\n", taille_sous_espace);
 
@@ -52,22 +65,11 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
         }
         else // sinon Ck=produit_scalaire(yk, yk_suivant)
         {
-            // pour chaque élément l de yk_suivant
-            for (l = 0; l < A->size1; l++)
+            produit_spmatrice_vecteur(A, yk, yk_suivant);
+
+            if (k < taille_sous_espace + incremente_quand_k_pair) // on stocke yk dans Vm
             {
-                // on calcule l'élément l
-                for (i = 0; i < (A->size1); i++)
-                {
-                    temp += yk->data[i] * gsl_spmatrix_get(A, l, i);
-                }
-                yk_suivant->data[l] = temp;
-
-                if (k < taille_sous_espace + incremente_quand_k_pair) // on stocke yk dans Vm
-                {
-
-                    remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k - incremente_quand_k_pair);
-                }
-                temp = 0.0;
+                remplis_colonne_matrice_avec_vecteur(Vm, yk_suivant, k - incremente_quand_k_pair);
             }
 
             // calcul de Ck = produit scalaire(yk, yk_suivant)
@@ -151,8 +153,9 @@ void affiche_matrice(gsl_matrix *A)
 }
 void affiche_vecteur(gsl_vector *v, int taille)
 {
-    //printf("Vecteur :\n");
-    for (int i = 0; i < taille; i++) {
+    // printf("Vecteur :\n");
+    for (int i = 0; i < taille; i++)
+    {
         printf("%g ", gsl_vector_get(v, i));
     }
     printf("\n\n");
@@ -173,52 +176,51 @@ gsl_spmatrix *lit_fichier_mat(char nomFichier[])
     return A;
 }
 
-void calcule_valeurs_et_vecteurs_propre(gsl_matrix *matrix, gsl_vector* valeurs_propres, gsl_matrix * vecteurs_propres)
+void calcule_valeurs_et_vecteurs_propre(gsl_matrix *matrix, gsl_vector *valeurs_propres, gsl_matrix *vecteurs_propres)
 {
-    
-    gsl_eigen_nonsymmv_workspace * w = gsl_eigen_nonsymmv_alloc (matrix->size1);
-    gsl_vector_complex *eval = gsl_vector_complex_alloc (matrix->size1);
-    gsl_matrix_complex *evec = gsl_matrix_complex_alloc (matrix->size1, matrix->size2);
-    gsl_eigen_nonsymmv (matrix, eval, evec, w);
-    gsl_eigen_nonsymmv_free (w);
 
+    gsl_eigen_nonsymmv_workspace *w = gsl_eigen_nonsymmv_alloc(matrix->size1);
+    gsl_vector_complex *eval = gsl_vector_complex_alloc(matrix->size1);
+    gsl_matrix_complex *evec = gsl_matrix_complex_alloc(matrix->size1, matrix->size2);
+    gsl_eigen_nonsymmv(matrix, eval, evec, w);
+    gsl_eigen_nonsymmv_free(w);
 
     for (int i = 0; i < matrix->size1; i++)
     {
-        gsl_complex eval_i = gsl_vector_complex_get (eval, i);
-        gsl_vector_complex_view evec_i = gsl_matrix_complex_column (evec, i);
+        gsl_complex eval_i = gsl_vector_complex_get(eval, i);
+        gsl_vector_complex_view evec_i = gsl_matrix_complex_column(evec, i);
 
-        printf ("Valeur propre = %g\n", GSL_REAL(eval_i));
-        printf ("Vecteurs propres : \n");
+        printf("Valeur propre = %g\n", GSL_REAL(eval_i));
+        printf("Vecteurs propres : \n");
         for (int j = 0; j < matrix->size1; ++j)
         {
             gsl_complex z = gsl_vector_complex_get(&evec_i.vector, j);
             printf("%g\n", GSL_REAL(z));
         }
     }
-    //Pour les valeurs propres 
-    // traduit le gsl_vector_complex en gsl_vector
-    for (size_t i = 0; i < eval->size; i++) {
-        gsl_vector_set (valeurs_propres, i, GSL_REAL(gsl_vector_complex_get(eval, i)));
+    // Pour les valeurs propres
+    //  traduit le gsl_vector_complex en gsl_vector
+    for (size_t i = 0; i < eval->size; i++)
+    {
+        gsl_vector_set(valeurs_propres, i, GSL_REAL(gsl_vector_complex_get(eval, i)));
     }
 
-    //Pour les vecteurs propres
-    // traduit gsl_matrix_complex en gsl_matrix
-    // on met les vecteurs propres associés a une valeur propre ligne par ligne
-    for (size_t i = 0; i < evec->size1; i++) {
-        for (size_t j = 0; j < evec->size2; j++) {
+    // Pour les vecteurs propres
+    //  traduit gsl_matrix_complex en gsl_matrix
+    //  on met les vecteurs propres associés a une valeur propre ligne par ligne
+    for (size_t i = 0; i < evec->size1; i++)
+    {
+        for (size_t j = 0; j < evec->size2; j++)
+        {
             gsl_matrix_set(vecteurs_propres, i, j, GSL_REAL(gsl_matrix_complex_get(evec, i, j)));
         }
     }
 
     affiche_matrice(vecteurs_propres);
 
-
-  
-    gsl_vector_complex_free (eval);
-    gsl_matrix_complex_free (evec);
+    gsl_vector_complex_free(eval);
+    gsl_matrix_complex_free(evec);
 }
-
 
 gsl_matrix *inverse_matrix(gsl_matrix *A)
 {
@@ -268,25 +270,44 @@ gsl_matrix *multiplie_matrices(gsl_matrix *matrice1, gsl_matrix *matrice2)
     return resultat;
 }
 
-gsl_vector* produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v)
+void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
 {
-    //printf("Produit matrice-vecteur :\n");
-    gsl_vector *result = gsl_vector_alloc(m->size1);
-    
-    int compt = 0;
-    for (int i = 0; i < m->size1; i++) 
+    // printf("Produit matrice-vecteur :\n");
+
+    double temp = 0;
+
+    // pour chaque élément de result
+    for (int i = 0; i < m->size1; i++)
     {
-        double res = 0;
-        for (int j = 0; j < m->size2; j++) 
+        // on le calcule (somme des produits)
+        for (int j = 0; j < m->size1; j++)
         {
-            res += gsl_matrix_get(m, i, j) * gsl_vector_get(v, j);
+            temp += gsl_matrix_get(m, i, j) * gsl_vector_get(v, j);
         }
-        gsl_vector_set(result, compt, res);
-        compt++;
-        
+        gsl_vector_set(resultat, i, temp);
+        temp = 0;
     }
-    
-    //affiche_vecteur(result, m->size1);
-    
-    return result;
+
+    // affiche_vecteur(result, m->size1);
+}
+
+void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resultat)
+{
+    // printf("Produit matrice-vecteur :\n");
+
+    double temp = 0;
+
+    // pour chaque élément de result
+    for (int i = 0; i < m->size1; i++)
+    {
+        // on le calcule (somme des produits)
+        for (int j = 0; j < m->size1; j++)
+        {
+            temp += gsl_spmatrix_get(m, i, j) * gsl_vector_get(v, j);
+        }
+        gsl_vector_set(resultat, i, temp);
+        temp = 0;
+    }
+
+    // affiche_vecteur(result, m->size1);
 }
