@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
     printf("Fm:\n");
     affiche_matrice(Fm);
 
-    // Calcul des valeurs/vecteurs propres de Fm
-    gsl_vector *valeurs_propres = gsl_vector_calloc(Fm->size1);
-    gsl_matrix *vecteurs_propres = gsl_matrix_alloc(Fm->size1, Fm->size2);
+    // calcul des valeurs/vecteurs propres de Fm
+    gsl_vector *valeurs_propres = gsl_vector_calloc(taille_sous_espace);                     // on stocke les valeurs propres dans un gsl_vector
+    gsl_matrix *vecteurs_propres = gsl_matrix_alloc(taille_sous_espace, taille_sous_espace); // on stocke les vecteurs propres dans une gsl_matrix
     printf("matrice vecteurs_propres:\n");
     calcule_valeurs_et_vecteurs_propre(Fm, valeurs_propres, vecteurs_propres);
 
@@ -54,13 +54,14 @@ int main(int argc, char *argv[])
     // Partie 3
     // qi = Vm x ui avec ui = vecteur propre de Fm
     printf("\nProduit matrice-vecteur :\n");
-    gsl_matrix *qi = gsl_matrix_alloc(Vm->size1, Vm->size2); // matrice qui contient les vecteurs qi
-    gsl_vector *result = gsl_vector_alloc(Vm->size1);
-    for (size_t i = 0; i < vecteurs_propres->size1; i++)
+    gsl_matrix *qi = gsl_matrix_alloc(A->size1, taille_sous_espace); // matrice qui contient les vecteurs qi
+    gsl_vector *result = gsl_vector_alloc(A->size1);
+
+    for (size_t i = 0; i < taille_sous_espace; i++)
     {
       gsl_vector_view tempui = gsl_matrix_column(vecteurs_propres, i); // vecteurs propres d'une valeur propre (tt la colonne)
       gsl_vector *ui = &tempui.vector;
-      // affiche_vecteur(ui, Fm->size2);
+      // affiche_vecteur(ui, taille_sous_espace);
       produit_matrice_vecteur(Vm, ui, result);
       gsl_matrix_set_col(qi, i, result);
 
@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
     gsl_matrix_free(B1);
     gsl_matrix_free(Em);
     gsl_matrix_free(Fm);
+    gsl_matrix_free(Vm);
     gsl_vector_free(yk);
   }
 

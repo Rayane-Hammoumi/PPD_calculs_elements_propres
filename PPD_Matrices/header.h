@@ -8,6 +8,7 @@
 #include <gsl/gsl_blas.h>
 #include <math.h>
 #include <ctype.h>
+#include <omp.h>
 
 void affiche_matrice(gsl_matrix *A);
 void affiche_vecteur(gsl_vector *v, int taille);

@@ -10,11 +10,11 @@ clean:
 	rm $(OUTPUT) *.o ./*.o
 
 $(OUTPUT): $(OBJ)
-	@gcc $^  -o $(OUTPUT)  $(LIB)
+	@gcc $^ -fopenmp -o $(OUTPUT)  $(LIB)
 	rm *.o
 
 %.o: %.c
-	@gcc $(OPT) -c $<  -o $@
+	@gcc $(OPT) -fopenmp -c $<  -o $@
 
 
 

@@ -30,9 +30,15 @@ void remplis_colonne_matrice_avec_vecteur(gsl_matrix *matrice, gsl_vector *vecte
 
 double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
+    if (yk->size != yk_suivant->size)
+    {
+        printf("échec du produit scalaire. Les vecteurs n'ont pas la même taille\n");
+        exit(EXIT_FAILURE);
+    }
     double res = 0.0;
-
-    for (size_t k = 0; k < yk->size; k++)
+    size_t k;
+    // #pragma omp parallel for schedule(static, yk->size / omp_get_num_threads())
+    for (k = 0; k < yk->size; k++)
     {
         res += yk->data[k] * yk_suivant->data[k];
     }
@@ -42,6 +48,7 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 // effectue les produits scalaires et les stocke dans la matrice B1 et B0
 // B0 correspond à Bm-1, B1 correspond à Bm dans l'énoncé
 // écrase le yk par le yk+1 à chaque tour
+// remplit la matrice Vm
 void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm, gsl_vector *yk, size_t taille_sous_espace)
 {
     printf("\ndimension matrice: %ld x %ld\n", A->size1, A->size2);
@@ -274,18 +281,18 @@ void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
 {
     // printf("Produit matrice-vecteur :\n");
 
-    double temp = 0;
+    double temp = 0.0;
 
     // pour chaque élément de result
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
-        for (int j = 0; j < m->size1; j++)
+        for (int j = 0; j < m->size2; j++)
         {
             temp += gsl_matrix_get(m, i, j) * gsl_vector_get(v, j);
         }
         gsl_vector_set(resultat, i, temp);
-        temp = 0;
+        temp = 0.0;
     }
 
     // affiche_vecteur(result, m->size1);
@@ -295,18 +302,18 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
 {
     // printf("Produit matrice-vecteur :\n");
 
-    double temp = 0;
+    double temp = 0.0;
 
     // pour chaque élément de result
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
-        for (int j = 0; j < m->size1; j++)
+        for (int j = 0; j < m->size2; j++)
         {
             temp += gsl_spmatrix_get(m, i, j) * gsl_vector_get(v, j);
         }
         gsl_vector_set(resultat, i, temp);
-        temp = 0;
+        temp = 0.0;
     }
 
     // affiche_vecteur(result, m->size1);
