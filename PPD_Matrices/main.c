@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     gsl_matrix *qi = gsl_matrix_alloc(A->size1, taille_sous_espace);                         // matrice qui contient les vecteurs qi
     gsl_vector *result = gsl_vector_alloc(A->size1);
 
-    int precision_atteinte = 0;
+    int precision_atteinte = 0, compteur_itérations = 0;
 
     gsl_vector_set_zero(yk);  // le y0 de la première itération est égal à la base (1, 0, 0...)
     gsl_vector_set(yk, 0, 1); // en effet on choisit de prendre x = (1, 0, 0...) donc ||x||=1
@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
     // pour stocker le temps d'exécution du code
     struct timeval start, end;
     double elapsed_time;
- 
-    gettimeofday(&start,NULL);
+
+    gettimeofday(&start, NULL);
 
     while (!precision_atteinte)
     {
@@ -74,12 +74,11 @@ int main(int argc, char *argv[])
       printf("\nProduit matrice-vecteur :\n");
       // pour stocker le temps d'exécution du code
       time_t begin = time(NULL);
-      
+
       calcule_qi(A, qi, vecteurs_propres, Vm, taille_sous_espace);
-     
+
       time_t end = time(NULL);
 
-  
       printf("[Produit matrice-vecteur] The elapsed time is %ld seconds\n", (end - begin));
 
       affiche_matrice(qi);
@@ -94,7 +93,7 @@ int main(int argc, char *argv[])
         produit_constante_vecteur(1 / calcule_norme(yk), yk, yk); // yk devient x/||x||
         gsl_matrix_free(Em);
         gsl_matrix_free(Fm);
-
+        compteur_itérations++;
         system("clear");
       }
     }
@@ -110,11 +109,12 @@ int main(int argc, char *argv[])
     gsl_matrix_free(qi);
     gsl_vector_free(result);
 
+    gettimeofday(&end, NULL);
 
-    gettimeofday(&end,NULL);
-    
     elapsed_time = (end.tv_sec - start.tv_sec);
     printf("[Temps d'execution TOTAL] = %f s\n", elapsed_time);
+    printf("nombre d'itérations: %d\n", compteur_itérations);
+    printf("précision: %lf\n", epsilon);
   }
   /*
     double data[] = { 0, 3, 5,
