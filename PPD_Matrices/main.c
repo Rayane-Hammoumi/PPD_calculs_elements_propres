@@ -35,14 +35,13 @@ int main(int argc, char *argv[])
 
     int precision_atteinte = 0, compteur_iterations = 0;
 
+    // pour stocker le temps d'exécution du code
+    double start_time, end_time, time;
+
     gsl_vector_set_zero(yk);  // le y0 de la première itération est égal à la base (1, 0, 0...)
     gsl_vector_set(yk, 0, 1); // en effet on choisit de prendre x = (1, 0, 0...) donc ||x||=1
 
-    // pour stocker le temps d'exécution du code
-    struct timeval start, end;
-    double elapsed_time;
-
-    gettimeofday(&start, NULL);
+    start_time = omp_get_wtime();
 
     while (!precision_atteinte)
     {
@@ -70,13 +69,13 @@ int main(int argc, char *argv[])
       // Partie 3
       printf("\nProduit matrice-vecteur :\n");
       // pour stocker le temps d'exécution du code
-      time_t begin = time(NULL);
+      double start_time, end_time;
 
+      start_time = omp_get_wtime();
       calcule_qi(A, qi, vecteurs_propres, Vm, taille_sous_espace);
+      end_time = omp_get_wtime();
 
-      time_t end = time(NULL);
-
-      printf("[Produit matrice-vecteur] The elapsed time is %ld seconds\n", (end - begin));
+      printf("[Produit matrice-vecteur] The elapsed time is %f seconds\n", end_time - start_time);
 
       affiche_matrice(qi);
 
@@ -106,12 +105,18 @@ int main(int argc, char *argv[])
     gsl_matrix_free(qi);
     gsl_vector_free(result);
 
-    gettimeofday(&end, NULL);
-
-    elapsed_time = (end.tv_sec - start.tv_sec);
-    printf("[Temps d'execution TOTAL] = %f s\n", elapsed_time);
-    printf("nombre d'itérations: %d\n", compteur_iterations);
-    printf("précision: %g\n", epsilon);
+    end_time = omp_get_wtime();
+    time = end_time - start_time;
+    if(time < 1)
+    {
+      printf("[Temps d'execution TOTAL] = %f ms\n", (time*1000.0));
+    }
+    else
+      printf("[Temps d'execution TOTAL] = %f s\n", time);
+    
+    printf("Nombre d'itérations: %d\n", compteur_iterations);
+    printf("Precision: %g\n", epsilon);
+    printf("Nombre de Threads: %d\n", omp_get_max_threads());
   }
   /*
     double data[] = { 0, 3, 5,

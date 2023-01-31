@@ -87,10 +87,9 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
 {
     double res = 0.0;
 
-    struct timeval start, end;
-    double elapsed_time;
+    double start_time, end_time, time;
  
-    gettimeofday(&start,NULL);
+    start_time = omp_get_wtime();
 
 
     // pour chaque élément de result
@@ -100,10 +99,15 @@ double produit_scalaire(gsl_vector *yk, gsl_vector *yk_suivant)
         res += yk->data[k] * yk_suivant->data[k];
     }
 
-    gettimeofday(&end,NULL);
-    elapsed_time = (end.tv_sec - start.tv_sec) * 1000.0;
-    elapsed_time += (end.tv_usec - start.tv_usec) / 1000.0;
-    printf("[produit_scalaire] Temps d'execution : %f ms\n", elapsed_time);
+    end_time = omp_get_wtime();
+    time = end_time - start_time;
+    if(time < 1)
+    {
+      printf("[produit_scalaire] Temps d'execution : %f ms\n", (time*1000.0));
+    }
+    else
+      printf("[produit_scalaire] Temps d'execution : %f s\n", time);
+
 
     return res;
 }
@@ -367,10 +371,9 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
 
     double temp = 0.0;
 
-    struct timeval start, end;
-    double elapsed_time;
+    double start_time, end_time, time;
  
-    gettimeofday(&start,NULL);
+    start_time = omp_get_wtime();
 
     // pour chaque élément de resultat
     #pragma omp parallel for schedule(static)
@@ -386,16 +389,25 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
     }
 
 
-    gettimeofday(&end,NULL);
-    elapsed_time = (end.tv_sec - start.tv_sec) * 1000.0;
-    elapsed_time += (end.tv_usec - start.tv_usec) / 1000.0;
-    printf("[produit_spmatrice_vecteur] Temps d'execution : %f ms\n", elapsed_time);
+    end_time = omp_get_wtime();
+    time = end_time - start_time;
+    if(time < 1)
+    {
+        printf("[produit_spmatrice_vecteur] Temps d'execution : %f ms\n", (time*1000.0));
+    }
+    else
+        printf("[produit_spmatrice_vecteur] Temps d'execution : %f s\n", time);
 
     // affiche_vecteur(result, m->size1);
 }
 
 void calcule_qi(gsl_spmatrix *A, gsl_matrix *qi, gsl_matrix *vecteurs_propres, gsl_matrix *Vm, size_t taille_sous_espace)
 {
+
+    double start_time, end_time, time;
+ 
+    start_time = omp_get_wtime();
+
     gsl_vector *result = gsl_vector_alloc(A->size1);
 
     // calculs des vecteurs qi qu'on stocke dans la gsl_matrix qi
@@ -409,4 +421,13 @@ void calcule_qi(gsl_spmatrix *A, gsl_matrix *qi, gsl_matrix *vecteurs_propres, g
       gsl_matrix_set_col(qi, i, result);
 
     }
+
+    end_time = omp_get_wtime();
+    time = end_time - start_time;
+    if(time < 1)
+    {
+        printf("[calcule_qi] Temps d'execution : %f ms\n", (time*1000.0));
+    }
+    else
+        printf("[calcule_qi] Temps d'execution : %f s\n", time);
 }
