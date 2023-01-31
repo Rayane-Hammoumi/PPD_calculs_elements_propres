@@ -9,8 +9,6 @@ int verifie_si_precision_atteinte(gsl_spmatrix *A, gsl_vector *valeurs_propres, 
     gsl_vector *lambda_multiplie_par_qi = gsl_vector_alloc(qi->size1);
     gsl_vector *res_soustraction = gsl_vector_alloc(qi->size1);
 
-// parallélisation de la boucle for
-#pragma omp parallel for
     for (int i = 0; i < qi->size2; i++)
     {
         gsl_vector_view tempui = gsl_matrix_column(qi, i); // on récupère une colonne dans la matrice contenant les vecteurs qi
@@ -122,8 +120,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
     gsl_matrix_set(B0, 0, 0, Ck);  // stocke C0 dans B0
     gsl_matrix_set_col(Vm, 0, yk);
 
-// pour chaque index k de Bk
-#pragma omp parallel for schedule(static)
+    // pour chaque index k de Bk
     for (k = 1; k <= 2 * taille_sous_espace - 1; k++)
     {
         if (k % 2 == 0) // si k est pair alors Ck=produit_scalaire(yk, yk)

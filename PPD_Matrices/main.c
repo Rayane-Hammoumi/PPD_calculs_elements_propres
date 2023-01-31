@@ -101,15 +101,15 @@ int main(int argc, char *argv[])
       }
 
       printf("----[Derniere iteration]----\n");
-      if(timepr < 1)
-          printf("[Projection] Temps d'execution : %f ms\n", (timepr*1000.0));
+      if (timepr < 1)
+        printf("[Projection] Temps d'execution : %f ms\n", (timepr * 1000.0));
       else
-          printf("[Projection] Temps d'execution : %f s\n", timepr);
+        printf("[Projection] Temps d'execution : %f s\n", timepr);
 
-      if(time < 1)
-          printf("[Produit matrice-vecteur] Temps d'execution : %f ms\n", (time*1000.0));
+      if (time < 1)
+        printf("[Produit matrice-vecteur] Temps d'execution : %f ms\n", (time * 1000.0));
       else
-          printf("[Produit matrice-vecteur] Temps d'execution : %f s\n", time);
+        printf("[Produit matrice-vecteur] Temps d'execution : %f s\n", time);
     }
     printf("\n");
     //  libération de la mémoire allouée
@@ -125,16 +125,17 @@ int main(int argc, char *argv[])
 
     end_time = omp_get_wtime();
     time = end_time - start_time;
-    if(time < 1)
+    if (time < 1)
     {
-      printf("[Temps d'execution TOTAL] = %f ms\n", (time*1000.0));
+      printf("[Temps d'execution TOTAL] = %f ms\n", (time * 1000.0));
     }
     else
+    {
       printf("[Temps d'execution TOTAL] = %f s\n", time);
-    
-    printf("Nombre d'itérations: %d\n", compteur_iterations);
-    printf("Precision: %g\n", epsilon);
-    printf("Nombre de Threads: %d\n", omp_get_max_threads());
+      printf("Nombre d'itérations: %d\n", compteur_iterations);
+      printf("Precision: %g\n", epsilon);
+      printf("Nombre de Threads: %d\n", omp_get_max_threads());
+    }
   }
   /*
     double data[] = { 0, 3, 5,
