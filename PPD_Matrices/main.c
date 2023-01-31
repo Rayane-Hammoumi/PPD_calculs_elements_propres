@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
       printf("vecteurs_propres size2 = %ld et Vm size2 = %ld\n", vecteurs_propres->size2, Vm->size2);
 
       // Partie 3
-      printf("\nProduit matrice-vecteur :\n");
+      printf("\nMatrice contenant les vecteurs qi :\n");
       // pour stocker le temps d'exécution du code
       double start_time, end_time, time;
 
@@ -124,7 +124,14 @@ int main(int argc, char *argv[])
     gsl_vector_free(result);
 
     end_time = omp_get_wtime();
+
+    printf("\ntaille sous espace: %ld\n\n", taille_sous_espace);
+    printf("Precision: %g\n", epsilon);
+    printf("Nombre de Threads: %d\n", omp_get_max_threads());
+    printf("Nombre d'itérations: %d\n", compteur_iterations);
+
     time = end_time - start_time;
+
     if (time < 1)
     {
       printf("[Temps d'execution TOTAL] = %f ms\n", (time * 1000.0));
@@ -132,9 +139,6 @@ int main(int argc, char *argv[])
     else
     {
       printf("[Temps d'execution TOTAL] = %f s\n", time);
-      printf("Nombre d'itérations: %d\n", compteur_iterations);
-      printf("Precision: %g\n", epsilon);
-      printf("Nombre de Threads: %d\n", omp_get_max_threads());
     }
   }
   /*

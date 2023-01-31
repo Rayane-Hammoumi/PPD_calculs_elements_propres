@@ -114,7 +114,6 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
     double Ck = 0.0;
     int i, j, k, incremente_quand_k_pair = 0;
     gsl_vector *yk_suivant = gsl_vector_alloc(yk->size);
-    printf("\ntaille sous espace: %ld\n\n", taille_sous_espace);
 
     Ck = produit_scalaire(yk, yk); // calcul de C0
     gsl_matrix_set(B0, 0, 0, Ck);  // stocke C0 dans B0
@@ -183,11 +182,8 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
             while (j >= 1 + k - taille_sous_espace)
             { // on ne remplit pas la première colonne de B0 car on la remplit déjà plus haut
                 if (i != taille_sous_espace - 1)
-                { // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
-                    printf("fichier %s ligne %d\n", __FILE__, __LINE__);
-                    printf("valeur de k: %d\n", k);
+                {                                         // on ne remplit pas la dernière colonne non plus d'où le j+1 et j-1
                     gsl_matrix_set(B0, i + 1, j - 1, Ck); // on stocke Ck dans la matrice B0
-                    printf("fichier %s ligne %d\n", __FILE__, __LINE__);
                 }
                 gsl_matrix_set(B1, i, j - 1, Ck); // on stocke Ck dans la matrice B1
                 j--;
@@ -235,9 +231,6 @@ gsl_spmatrix *lit_fichier_mat(char nomFichier[])
 
     fclose(fp);
 
-    // affiche la matrice importée
-    // gsl_spmatrix_fprintf(stdout, A, "%.g");
-
     return A;
 }
 
@@ -255,8 +248,8 @@ void calcule_valeurs_et_vecteurs_propre(gsl_matrix *matrix, gsl_vector *valeurs_
         gsl_complex eval_i = gsl_vector_complex_get(eval, i);
         gsl_vector_complex_view evec_i = gsl_matrix_complex_column(evec, i);
 
-        printf("Valeur propre = %g\n", GSL_REAL(eval_i));
-        printf("Vecteurs propres : \n");
+        printf("\nValeur propre = %g\n", GSL_REAL(eval_i));
+        printf("Vecteur propre associé : \n");
         for (int j = 0; j < matrix->size1; ++j)
         {
             gsl_complex z = gsl_vector_complex_get(&evec_i.vector, j);
@@ -337,8 +330,6 @@ gsl_matrix *multiplie_matrices(gsl_matrix *matrice1, gsl_matrix *matrice2)
 
 void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
 {
-    // printf("Produit matrice-vecteur :\n");
-
     double temp = 0.0;
 
 // pour chaque élément de resultat
@@ -359,8 +350,6 @@ void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
 
 void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resultat)
 {
-    // printf("Produit matrice-vecteur :\n");
-
     double temp = 0.0;
 
 // pour chaque élément de resultat
