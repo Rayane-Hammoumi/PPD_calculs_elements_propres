@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
 
     double epsilon;
     sscanf(argv[3], "%lf", &epsilon);
-    printf("précision: %lf\n", epsilon);
 
     // déclarations et allocations de mémoire
     gsl_spmatrix *A = lit_fichier_mat(argv[1]); // on importe la matrice du fichier
@@ -69,13 +68,17 @@ int main(int argc, char *argv[])
       // Partie 3
       printf("\nProduit matrice-vecteur :\n");
       // pour stocker le temps d'exécution du code
-      double start_time, end_time;
+      double start_time, end_time, time;
 
       start_time = omp_get_wtime();
       calcule_qi(A, qi, vecteurs_propres, Vm, taille_sous_espace);
       end_time = omp_get_wtime();
 
-      printf("[Produit matrice-vecteur] The elapsed time is %f seconds\n", end_time - start_time);
+      time = end_time - start_time;
+      if(time < 1)
+          printf("[Produit matrice-vecteur] Temps d'execution : %f ms\n", (time*1000.0));
+      else
+          printf("[Produit matrice-vecteur] Temps d'execution : %f s\n", time);
 
       affiche_matrice(qi);
 
