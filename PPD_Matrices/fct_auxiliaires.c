@@ -127,6 +127,7 @@ void projection(gsl_spmatrix *A, gsl_matrix *B0, gsl_matrix *B1, gsl_matrix *Vm,
     gsl_matrix_set_col(Vm, 0, yk);
 
     // pour chaque index k de Bk
+    #pragma omp for schedule(static)
     for (k = 1; k <= 2 * taille_sous_espace - 1; k++)
     {
         if (k % 2 == 0) // si k est pair alors Ck=produit_scalaire(yk, yk)
@@ -348,7 +349,7 @@ void produit_matrice_vecteur(gsl_matrix *m, gsl_vector *v, gsl_vector *resultat)
     double temp = 0.0;
 
     // pour chaque élément de resultat
-    #pragma omp for
+    #pragma omp for schedule(static)
     for (int i = 0; i < m->size1; i++)
     {
         // on le calcule (somme des produits)
@@ -369,10 +370,6 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
 
     double temp = 0.0;
 
-    double start_time, end_time, time;
- 
-    start_time = omp_get_wtime();
-
     // pour chaque élément de resultat
     #pragma omp parallel for schedule(static)
     for (int i = 0; i < m->size1; i++)
@@ -385,14 +382,6 @@ void produit_spmatrice_vecteur(gsl_spmatrix *m, gsl_vector *v, gsl_vector *resul
         gsl_vector_set(resultat, i, temp);
         temp = 0.0;
     }
-
-
-    end_time = omp_get_wtime();
-    time = end_time - start_time;
-    if(time < 1)
-        printf("[produit_spmatrice_vecteur] Temps d'execution : %f ms\n", (time*1000.0));
-    else
-        printf("[produit_spmatrice_vecteur] Temps d'execution : %f s\n", time);
 
     // affiche_vecteur(result, m->size1);
 }

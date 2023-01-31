@@ -44,9 +44,17 @@ int main(int argc, char *argv[])
 
     while (!precision_atteinte)
     {
+      double start_timepr, end_timepr, timepr;
 
+      start_timepr = omp_get_wtime();
+
+      printf("\nProjection :\n");
       // calcul de Bm (<=>B1), de Bm-1 (<=>B0) et de Vm
       projection(A, B0, B1, Vm, yk, taille_sous_espace); // remplit B0, B1 et Vm et les affiche
+
+      end_timepr = omp_get_wtime();
+
+      timepr = end_timepr - start_timepr;
 
       // calcul et affichage de Em
       gsl_matrix *Em = inverse_matrix(B0);
@@ -75,10 +83,6 @@ int main(int argc, char *argv[])
       end_time = omp_get_wtime();
 
       time = end_time - start_time;
-      if(time < 1)
-          printf("[Produit matrice-vecteur] Temps d'execution : %f ms\n", (time*1000.0));
-      else
-          printf("[Produit matrice-vecteur] Temps d'execution : %f s\n", time);
 
       affiche_matrice(qi);
 
@@ -95,8 +99,19 @@ int main(int argc, char *argv[])
         compteur_iterations++;
         system("clear");
       }
-    }
 
+      printf("----[Derniere iteration]----\n");
+      if(timepr < 1)
+          printf("[Projection] Temps d'execution : %f ms\n", (timepr*1000.0));
+      else
+          printf("[Projection] Temps d'execution : %f s\n", timepr);
+
+      if(time < 1)
+          printf("[Produit matrice-vecteur] Temps d'execution : %f ms\n", (time*1000.0));
+      else
+          printf("[Produit matrice-vecteur] Temps d'execution : %f s\n", time);
+    }
+    printf("\n");
     //  libération de la mémoire allouée
     gsl_spmatrix_free(A);
     gsl_matrix_free(B0);
