@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     elapsed_time = (end.tv_sec - start.tv_sec);
     printf("[Temps d'execution TOTAL] = %f s\n", elapsed_time);
     printf("nombre d'itérations: %d\n", compteur_itérations);
-    printf("précision: %lf\n", epsilon);
+    printf("précision: %g\n", epsilon);
   }
   /*
     double data[] = { 0, 3, 5,
