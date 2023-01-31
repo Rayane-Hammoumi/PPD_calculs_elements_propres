@@ -11,3 +11,5 @@ Afin de compiler ce projet, en plus d'OpenMP, vous aurez besoin de la bibliothè
 NB: taille_sous_espace est un entier, précision est un nombre décimal (0.00000000001 par exemple)
 
 Vous disposez de plusieurs fichiers .mtx dans ce dossier sur lequel vous pouvez exécuter le programme.
+
+N'oubliez pas de spécifier le nombre de threads en initialisant OMP_NUM_THREADS avant d'exécuter le code.

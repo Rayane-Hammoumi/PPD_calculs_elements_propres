@@ -38,7 +38,6 @@ int main(int argc, char *argv[])
     gsl_vector_set_zero(yk);  // le y0 de la première itération est égal à la base (1, 0, 0...)
     gsl_vector_set(yk, 0, 1); // en effet on choisit de prendre x = (1, 0, 0...) donc ||x||=1
 
-    // debut for TODO:
     // pour stocker le temps d'exécution du code
     struct timeval start, end;
     double elapsed_time;
@@ -47,8 +46,6 @@ int main(int argc, char *argv[])
 
     while (!precision_atteinte)
     {
-
-      // TODO: yk=une combinaison linéaire des vecteurs propres au redémarrage
 
       // calcul de Bm (<=>B1), de Bm-1 (<=>B0) et de Vm
       projection(A, B0, B1, Vm, yk, taille_sous_espace); // remplit B0, B1 et Vm et les affiche
